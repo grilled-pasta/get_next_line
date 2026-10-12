@@ -17,6 +17,12 @@
 # include <unistd.h>
 # include <stdlib.h>
 
+// typedef	struct	fd_str
+// {
+// 	int		fd;
+// 	char	*str;
+// }			t_fd_str;
+
 char	*get_next_line(int fd);
 
 #endif 
