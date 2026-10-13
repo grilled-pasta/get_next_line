@@ -16,9 +16,11 @@
 
 int		contains_new_line(char *s)
 {
-	while (*s && *s != '\n' && *s != EOF)
+	if (!s)
+		return (0);
+	while (*s && *s != '\n')
 		s++;
-	return (*s == '\n' || *s == EOF);
+	return (*s == '\n');
 }
 
 int		ft_strlen(const char *s)
@@ -26,7 +28,7 @@ int		ft_strlen(const char *s)
 	int	i;
 
 	i = 0;
-	while (s[i])
+	while (s && s[i])
 		i++;
 	return (i);
 }
@@ -38,9 +40,9 @@ char	*ft_dupcat(char *s1, char *s2)
 
 	res = (char *) malloc(sizeof(char) * ft_strlen(s1) + ft_strlen(s2) + 1);
 	str = res;
-	while (*s1)
+	while (s1 && *s1)
 		*res++ = *s1++;
-	while (*s2)
+	while (s2 && *s2)
 		*res++ = *s2++;
 	*res = '\0';
 	return (str);
@@ -56,63 +58,43 @@ char	*get_next_line(int fd)
 	char		*temp;
 
 	temp = NULL;
-	new_line = ft_dupcat("", "");
+	new_line = NULL;
 	if (stash)
 	{
 		new_line = ft_dupcat(new_line, stash);
 		free(stash);
 		stash = NULL;
 	}
-	if (contains_new_line(new_line))
+	while(!contains_new_line(new_line))
 	{
-		i = 0;
-		while (new_line[i])
-		{
-			if (new_line[i] == '\n' || new_line[i] == EOF)
-			{
-				if (new_line[i + 1])
-				{
-					stash = ft_dupcat("", new_line + i + 1);
-					new_line[i + 1] = '\0';
-				}
-				break ;
-			}
-			i++;
-		}
-		return (new_line);
-	}
-	while ((bytes = read(fd, buff, BUFFER_SIZE)) > 0)
-	{
+		bytes = read(fd, buff, BUFFER_SIZE);
+		if (bytes <= 0)
+			break ;
 		buff[bytes] = '\0';
-		if (contains_new_line(buff))
-		{
-			i = 0;
-			while (buff[i])
-			{
-				if (buff[i] == '\n' || buff[i] == EOF)
-				{
-					if (buff[i + 1])
-					{
-						stash = ft_dupcat("", buff + i + 1);
-						buff[i + 1] = '\0';
-					}
-					break ;
-				}
-				i++;
-			}
-			temp = new_line;
-			new_line = ft_dupcat(new_line, buff);
-			free(temp);
-			return (new_line);
-		}
-		else
-		{
-			temp = new_line;
-			new_line = ft_dupcat(new_line, buff);
-			free(temp);
-		}
+		temp = new_line;
+		new_line = ft_dupcat(new_line, buff);
+		free(temp);
 	}
-	return (NULL);
+	i = 0;
+	while (new_line && new_line[i])
+	{
+		if (new_line[i] == '\n')
+		{
+			if (new_line[i + 1])
+			{
+				if (stash)
+				{
+					free(stash);
+					stash = NULL;
+				}
+				stash = ft_dupcat("", new_line + i + 1);
+				new_line[i + 1] = '\0';
+			}
+			break ;
+		}
+		i++;
+	}
+	return (new_line);
 }
 
 // int		main(void)
