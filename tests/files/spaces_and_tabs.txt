@@ -1,0 +1,3 @@
+ leading space
+	leading tab
+trailing spaces   

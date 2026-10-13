@@ -16,12 +16,12 @@
 
 int		contains_new_line(char *s)
 {
-	while (*s && *s != '\n')
+	while (*s && *s != '\n' && *s != EOF)
 		s++;
-	return (*s == '\n');
+	return (*s == '\n' || *s == EOF);
 }
 
-size_t	ft_strlen(const char *s)
+int		ft_strlen(const char *s)
 {
 	int	i;
 
@@ -31,84 +31,102 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-void	*ft_memcpy(void *dest, const void *src, size_t n)
+char	*ft_dupcat(char *s1, char *s2)
 {
-	size_t	i;
+	char	*res;
+	char	*str;
 
-	i = 0;
-	while (i < n)
-	{
-		((unsigned char *) dest)[i] = ((unsigned char *) src)[i];
-		i++;
-	}
-	return (dest);
+	res = (char *) malloc(sizeof(char) * ft_strlen(s1) + ft_strlen(s2) + 1);
+	str = res;
+	while (*s1)
+		*res++ = *s1++;
+	while (*s2)
+		*res++ = *s2++;
+	*res = '\0';
+	return (str);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*remainder;
-	int			bytes;
-	int			buff_size;
-	char		*buff;
+	static char	*stash;
+	char		buff[BUFFER_SIZE + 1];
 	int			i;
-	int			j;
+	int			bytes;
 	char		*new_line;
+	char		*temp;
 
-	buff_size = 10;
-	buff = (char *) malloc(sizeof(char) * buff_size + 1);
-	while (remainder || (bytes = read(fd, buff, buff_size)) > 0)
-	{	
-		if (remainder)
+	temp = NULL;
+	new_line = ft_dupcat("", "");
+	if (stash)
+	{
+		new_line = ft_dupcat(new_line, stash);
+		free(stash);
+		stash = NULL;
+	}
+	if (contains_new_line(new_line))
+	{
+		i = 0;
+		while (new_line[i])
 		{
-			ft_memcpy(buff, remainder, ft_strlen(remainder) + 1);
-			free(remainder);
-			remainder = NULL;
+			if (new_line[i] == '\n' || new_line[i] == EOF)
+			{
+				if (new_line[i + 1])
+				{
+					stash = ft_dupcat("", new_line + i + 1);
+					new_line[i + 1] = '\0';
+				}
+				break ;
+			}
+			i++;
 		}
+		return (new_line);
+	}
+	while ((bytes = read(fd, buff, BUFFER_SIZE)) > 0)
+	{
+		buff[bytes] = '\0';
 		if (contains_new_line(buff))
 		{
 			i = 0;
 			while (buff[i])
 			{
-				if (buff[i] == '\n' && buff[i + 1])
+				if (buff[i] == '\n' || buff[i] == EOF)
 				{
-					remainder = (char *) malloc(sizeof(char) * ft_strlen(buff + i + 1) + 1);
-					ft_memcpy(remainder, buff + i + 1, ft_strlen(buff + i + 1) + 1);
-					buff[i + 1] = '\0';
+					if (buff[i + 1])
+					{
+						stash = ft_dupcat("", buff + i + 1);
+						buff[i + 1] = '\0';
+					}
 					break ;
 				}
-				// else
-				// {
-				// 	free(remainder);
-				// 	remainder = NULL;
-				// }
 				i++;
 			}
-			printf("%s~~~", buff);
-			return (buff);
+			temp = new_line;
+			new_line = ft_dupcat(new_line, buff);
+			free(temp);
+			return (new_line);
 		}
 		else
 		{
-			// free(remainder);
-			// remainder = NULL;
-			printf("___%s___", buff);
+			temp = new_line;
+			new_line = ft_dupcat(new_line, buff);
+			free(temp);
 		}
 	}
 	return (NULL);
 }
 
-int		main(void)
-{
-	int		fd;
-	char	*line;
-
-	fd = open("README.md", O_RDONLY);
-	if (fd == -1)
-		return (-1);
-	while ((line = get_next_line(fd)))
-	{
-		free(line);	
-	}
-	return (close(fd));
-	// while ((line = get_next_line(fd)))
-	// 	printf("%s", line);
-}
+// int		main(void)
+// {
+// 	int		fd;
+// 	char	*line;
+//
+// 	fd = open("README.md", O_RDONLY);
+// 	if (fd == -1)
+// 		return (-1);
+// 	while ((line = get_next_line(fd)))
+// 	{
+// 		printf("%s", line);
+// 		free(line);	
+// 	}
+// 	return (close(fd));
+// }
