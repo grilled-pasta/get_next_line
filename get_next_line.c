@@ -16,11 +16,13 @@
 
 int		contains_new_line(char *s)
 {
-	if (!s)
-		return (0);
-	while (*s && *s != '\n')
+	while (s && *s)
+	{
+		if (*s == '\n')
+			return (1);
 		s++;
-	return (*s == '\n');
+	}
+	return (0);
 }
 
 int		ft_strlen(const char *s)
@@ -50,106 +52,99 @@ char	*ft_dupcat(char *s1, char *s2)
 	return (str);
 }
 
-char	*get_next_line(int fd)
+void	ft_strzero(char *s)
 {
-	static char	*stash;
-	char		*buff;
-	int			i;
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		((unsigned char *) s)[i] = '\0';
+		i++;
+	}
+}
+
+void	*ft_memcpy(char *dest, char *src, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < n)
+	{
+		((unsigned char *) dest)[i] = ((unsigned char *) src)[i];
+		i++;
+	}
+	return (dest);
+}
+
+char	*read_next_line(int fd, char (*buff)[BUFFER_SIZE + 1])
+{
 	int			bytes;
 	char		*new_line;
 	char		*temp;
 
-	if (fd < 0)
-		return (NULL);
-	temp = NULL;
 	new_line = NULL;
-	buff = NULL;
-	if (stash)
-	{
-		new_line = ft_dupcat("", stash);
-		if (!new_line)
-		{
-			free(stash);
-			stash = NULL;
-			return (NULL);
-		}
-		free(stash);
-		stash = NULL;
-	}
-	while(!contains_new_line(new_line))
-	{
-		buff = (char *) malloc(BUFFER_SIZE + 1);
-		if (!buff)
-		{
-			free(new_line);
-			return (NULL);
-		}
-		bytes = read(fd, buff, BUFFER_SIZE);
-		if (bytes == 0)
-		{
-			free(buff);
-			break ;
-		}
-		if (bytes < 0)
-		{
-			free(new_line);
-			free(buff);
-			return (NULL);
-		}
-		buff[bytes] = '\0';
+	while (!contains_new_line(*buff))
+	{		
 		temp = new_line;
-		new_line = ft_dupcat(new_line, buff);
+		new_line = ft_dupcat(new_line, *buff);
 		if (!new_line)
-		{
-			free(temp);
-			free(buff);
-			return (NULL);
-		}
+			return (free(temp), ft_strzero(*buff), NULL);
 		free(temp);
-		free(buff);
-	}
-	i = 0;
-	while (new_line && new_line[i])
-	{
-		if (new_line[i] == '\n')
-		{
-			if (new_line[i + 1])
-			{
-				if (stash)
-				{
-					free(stash);
-					stash = NULL;
-				}
-				stash = ft_dupcat("", new_line + i + 1);
-				if (!stash)
-				{
-					free(new_line);
-					free(buff);
-					return (NULL);
-				}
-				new_line[i + 1] = '\0';
-			}
-			// new_line[i] = '_';
-			break ;
-		}
-		i++;
+		bytes = read(fd, *buff, BUFFER_SIZE);
+		if (bytes == 0)
+			return (ft_strzero(*buff), new_line);
+		if (bytes == -1)
+			return (ft_strzero(*buff), free(new_line), NULL);
+		*buff[bytes] = '\0';
+		// temp = new_line;
+		// new_line = ft_dupcat(new_line, *buff);
+		// if (!new_line)
+		// 	return (free(temp), ft_strzero(*buff), NULL);
+		// free(temp);
 	}
 	return (new_line);
 }
 
-// int		main(void)
-// {
-// 	int		fd;
-// 	char	*line;
-//
-// 	// fd = open("multinewlines.txt", O_RDONLY);
-// 	fd = open("README.md", O_RDONLY);
-// 	if (fd == -1)
-// 		return (-1);
-// 	while ((line = get_next_line(fd)))
-// 	{
-// 		printf("%s", line);
-// 		free(line);	
-// 	}
-// 	return (close(fd));
-// }
+char	*get_next_line(int fd)
+{
+	static char	buff[BUFFER_SIZE + 1];
+	char		*new_line;
+	int			i;
+
+	new_line = read_next_line(fd, &buff);
+	if (!new_line)
+		return (NULL);
+	i = 0;
+	while (new_line[i] && new_line[i] != '\n')
+		i++;
+	i++;
+	// printf("BUFF: %s\n", buff);
+	ft_strzero(buff);
+	if (new_line + i + 1)
+		ft_memcpy(buff, new_line + i + 1, ft_strlen(new_line + i + 1) + 1);
+	new_line[i] = '\0';
+	return (new_line);
+}
+
+int		main(void)
+{
+	int		fd;
+	char	*line;
+
+	// fd = open("multinewlines.txt", O_RDONLY);
+	fd = open("README.md", O_RDONLY);
+	if (fd == -1)
+		return (-1);
+	// while ((line = get_next_line(fd)))
+	// {
+	// 	printf("~~%s\n", line);
+	// 	free(line);	
+	// }
+	line = get_next_line(fd);
+	printf("~~%s\n", line);	
+	line = get_next_line(fd);
+	printf("~~%s\n", line);
+	free(line);
+	return (close(fd));
+}
