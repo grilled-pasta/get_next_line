@@ -38,7 +38,9 @@ char	*ft_dupcat(char *s1, char *s2)
 	char	*res;
 	char	*str;
 
-	res = (char *) malloc(sizeof(char) * ft_strlen(s1) + ft_strlen(s2) + 1);
+	res = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!res)
+		return (NULL);
 	str = res;
 	while (s1 && *s1)
 		*res++ = *s1++;
@@ -51,29 +53,68 @@ char	*ft_dupcat(char *s1, char *s2)
 char	*get_next_line(int fd)
 {
 	static char	*stash;
-	char		buff[BUFFER_SIZE + 1];
+	char		*buff;
 	int			i;
 	int			bytes;
 	char		*new_line;
 	char		*temp;
 
+	if (fd == -1)
+		return (NULL);
 	temp = NULL;
 	new_line = NULL;
+	buff = NULL;
 	if (stash)
 	{
 		new_line = ft_dupcat(new_line, stash);
+		if (!new_line)
+		{
+			free(new_line);
+			free(stash);
+			stash = NULL;
+			return (NULL);
+		}
 		free(stash);
 		stash = NULL;
 	}
 	while(!contains_new_line(new_line))
 	{
+		buff = (char *) malloc(sizeof(char) * BUFFER_SIZE + 1);
+		if (!buff)
+		{
+			free(new_line);
+			free(buff);
+			free(stash);
+			stash = NULL;
+			return (NULL);
+		}
 		bytes = read(fd, buff, BUFFER_SIZE);
-		if (bytes <= 0)
+		if (bytes == 0)
+		{
+			free(buff);
 			break ;
+		}
+		if (bytes < 0)
+		{
+			free(new_line);
+			free(buff);
+			free(stash);
+			stash = NULL;
+			return (NULL);
+		}
 		buff[bytes] = '\0';
 		temp = new_line;
 		new_line = ft_dupcat(new_line, buff);
+		if (!new_line)
+		{
+			free(temp);
+			free(buff);
+			free(stash);
+			stash = NULL;
+			return (NULL);
+		}
 		free(temp);
+		free(buff);
 	}
 	i = 0;
 	while (new_line && new_line[i])
@@ -88,6 +129,13 @@ char	*get_next_line(int fd)
 					stash = NULL;
 				}
 				stash = ft_dupcat("", new_line + i + 1);
+				if (!stash)
+				{
+					free(new_line);
+					free(buff);
+					return (NULL);
+				}
+				// new_line[i] = '_';
 				new_line[i + 1] = '\0';
 			}
 			break ;
