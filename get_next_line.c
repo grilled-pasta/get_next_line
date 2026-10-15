@@ -59,17 +59,16 @@ char	*get_next_line(int fd)
 	char		*new_line;
 	char		*temp;
 
-	if (fd == -1)
+	if (fd < 0)
 		return (NULL);
 	temp = NULL;
 	new_line = NULL;
 	buff = NULL;
 	if (stash)
 	{
-		new_line = ft_dupcat(new_line, stash);
+		new_line = ft_dupcat("", stash);
 		if (!new_line)
 		{
-			free(new_line);
 			free(stash);
 			stash = NULL;
 			return (NULL);
@@ -79,13 +78,10 @@ char	*get_next_line(int fd)
 	}
 	while(!contains_new_line(new_line))
 	{
-		buff = (char *) malloc(sizeof(char) * BUFFER_SIZE + 1);
+		buff = (char *) malloc(BUFFER_SIZE + 1);
 		if (!buff)
 		{
 			free(new_line);
-			free(buff);
-			free(stash);
-			stash = NULL;
 			return (NULL);
 		}
 		bytes = read(fd, buff, BUFFER_SIZE);
@@ -98,8 +94,6 @@ char	*get_next_line(int fd)
 		{
 			free(new_line);
 			free(buff);
-			free(stash);
-			stash = NULL;
 			return (NULL);
 		}
 		buff[bytes] = '\0';
@@ -109,8 +103,6 @@ char	*get_next_line(int fd)
 		{
 			free(temp);
 			free(buff);
-			free(stash);
-			stash = NULL;
 			return (NULL);
 		}
 		free(temp);
@@ -135,9 +127,9 @@ char	*get_next_line(int fd)
 					free(buff);
 					return (NULL);
 				}
-				// new_line[i] = '_';
 				new_line[i + 1] = '\0';
 			}
+			// new_line[i] = '_';
 			break ;
 		}
 		i++;
@@ -150,6 +142,7 @@ char	*get_next_line(int fd)
 // 	int		fd;
 // 	char	*line;
 //
+// 	// fd = open("multinewlines.txt", O_RDONLY);
 // 	fd = open("README.md", O_RDONLY);
 // 	if (fd == -1)
 // 		return (-1);
