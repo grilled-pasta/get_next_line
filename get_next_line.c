@@ -14,6 +14,12 @@
 #include <stdio.h>
 #include <stddef.h>
 
+void	free_mem(char *s)
+{
+	if (s)
+		free(s);
+}
+
 char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
@@ -25,20 +31,22 @@ char	*read_next_line(int fd, char *buff)
 		return (NULL);
 	if (ft_strlen(buff) > 0)
 	{
-		new_line = ft_dupcat("", buff);
+		new_line = ft_dupcat(NULL, buff);
+		if (!new_line)
+			return (ft_strzero(buff), NULL);
 		ft_strzero(buff);
 	}
 	while (!contains_new_line(new_line))
 	{		
 		bytes = read(fd, buff, BUFFER_SIZE);	
 		if (bytes < 0)
-			return (free(new_line), NULL);
+			return (ft_strzero(buff), free_mem(new_line), NULL);
 		if (bytes == 0)
-			return (new_line);
+			return (ft_strzero(buff), new_line);
 		buff[bytes] = '\0';
 		temp = new_line;
 		new_line = ft_dupcat(new_line, buff);
-		free(temp);
+		free_mem(temp);
 		if (!new_line)
 			return (NULL);
 	}
