@@ -12,6 +12,13 @@
 
 #include "get_next_line.h"
 
+/*
+ * This function returns a string that contains at least one new line, or the 
+ * contents before reaching EOF. It handles processing the remainder of a
+ * previous file read. 
+ * Returns NULL if memory allocation fails, or the was an error while reading
+ * from the file.
+ */
 char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
@@ -41,6 +48,13 @@ char	*read_next_line(int fd, char *buff)
 	return (new_line);
 }
 
+/*
+ * This function handles reading a file line by line. It returns a string
+ * containing the next new line in the file. Repeated calls return the next new
+ * line encountered in the file.
+ * Returns NULL if the file descriptor is invalid, if memory allocation fails,
+ * or if EOF is reached and there is nothing more to read.
+ */ 
 char	*get_next_line(int fd)
 {
 	static char	buff[1024][BUFFER_SIZE + 1];
