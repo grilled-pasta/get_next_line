@@ -54,7 +54,7 @@ char	*read_next_line(int fd, char *buff)
  * line encountered in the file.
  * Returns NULL if the file descriptor is invalid, if memory allocation fails,
  * or if EOF is reached and there is nothing more to read.
- */ 
+ */
 char	*get_next_line(int fd)
 {
 	static char	buff[BUFFER_SIZE + 1];
