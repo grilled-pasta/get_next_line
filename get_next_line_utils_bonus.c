@@ -23,9 +23,9 @@ int	contains_new_line(char *s)
 	return (0);
 }
 
-int	ft_strlen(const char *s)
+size_t	ft_strlen(const char *s)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (s && s[i])
@@ -58,7 +58,7 @@ char	*ft_dupcat(char *s1, char *s2)
 	return (free(s1), res);
 }
 
-void	*ft_bzero(void *s, size_t n)
+void	ft_bzero(void *s, size_t n)
 {
 	size_t	i;
 
@@ -68,7 +68,6 @@ void	*ft_bzero(void *s, size_t n)
 		((unsigned char *) s)[i] = 0;
 		i++;
 	}
-	return (s);
 }
 
 void	*ft_memcpy(char *dest, char *src, size_t n)
