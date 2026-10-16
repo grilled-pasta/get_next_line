@@ -24,9 +24,9 @@
 
 char	*get_next_line(int fd);
 int		contains_new_line(char *s);
-int		ft_strlen(const char *s);
+size_t	ft_strlen(const char *s);
 char	*ft_dupcat(char *s1, char *s2);
-void	*ft_bzero(void *s, size_t n);
+void	ft_bzero(void *s, size_t n);
 void	*ft_memcpy(char *dest, char *src, size_t n);
 
 #endif 
