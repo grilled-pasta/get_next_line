@@ -6,7 +6,7 @@
 /*   By: alkonsta <alkonsta@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/09 20:29:29 by alkonsta          #+#    #+#             */
-/*   Updated: 2026/10/09 21:48:21 by alkonsta         ###   ########.fr       */
+/*   Updated: 2026/10/16 20:09:29 by alkonsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,14 @@
 
 # include <fcntl.h>
 # include <unistd.h>
+# include <stddef.h>
 # include <stdlib.h>
 
 char	*get_next_line(int fd);
 int		contains_new_line(char *s);
 int		ft_strlen(const char *s);
 char	*ft_dupcat(char *s1, char *s2);
-void	ft_strzero(char *s);
+void	*ft_bzero(void *s, size_t n);
 void	*ft_memcpy(char *dest, char *src, size_t n);
 
 #endif 

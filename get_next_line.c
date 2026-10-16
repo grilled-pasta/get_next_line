@@ -6,25 +6,22 @@
 /*   By: alkonsta <alkonsta@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/09 20:28:25 by alkonsta          #+#    #+#             */
-/*   Updated: 2026/10/09 22:18:25 by alkonsta         ###   ########.fr       */
+/*   Updated: 2026/10/16 20:04:31 by alkonsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
-#include <stddef.h>
 
 char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
 	char	*new_line;
-	char	*temp;
 
 	new_line = NULL;
 	if (ft_strlen(buff) > 0)
 	{
 		new_line = ft_dupcat(NULL, buff);
-		ft_strzero(buff);
+		ft_bzero(buff, BUFFER_SIZE + 1);
 		if (!new_line)
 			return (NULL);
 	}
@@ -32,14 +29,12 @@ char	*read_next_line(int fd, char *buff)
 	{
 		bytes = read(fd, buff, BUFFER_SIZE);
 		if (bytes < 0)
-			return (ft_strzero(buff), free(new_line), NULL);
+			return (ft_bzero(buff, BUFFER_SIZE + 1), free(new_line), NULL);
 		if (bytes == 0)
-			return (ft_strzero(buff), new_line);
+			return (ft_bzero(buff, BUFFER_SIZE + 1), new_line);
 		buff[bytes] = '\0';
-		temp = new_line;
 		new_line = ft_dupcat(new_line, buff);
-		free(temp);
-		ft_strzero(buff);
+		ft_bzero(buff, BUFFER_SIZE + 1);
 		if (!new_line)
 			return (NULL);
 	}
@@ -51,7 +46,6 @@ char	*get_next_line(int fd)
 	static char	buff[BUFFER_SIZE + 1];
 	char		*new_line;
 	int			i;
-	char		*temp;
 
 	if (fd < 0)
 		return (NULL);
@@ -61,25 +55,24 @@ char	*get_next_line(int fd)
 	i = 0;
 	while (new_line[i] && new_line[i] != '\n')
 		i++;
-	if (new_line[i] == '\n')
+	if (new_line[i] == '\n' && new_line[i + 1])
 	{
 		i++;
-		ft_strzero(buff);
+		ft_bzero(buff, BUFFER_SIZE + 1);
 		ft_memcpy(buff, new_line + i, ft_strlen(new_line + i) + 1);
 		new_line[i] = '\0';
-		temp = new_line;
 		new_line = ft_dupcat(new_line, NULL);
-		free(temp);
 	}
 	return (new_line);
 }
 
+// #include <stdio.h>
+//
 // int		main(void)
 // {
 // 	int		fd;
 // 	char	*line;
 //
-// 	// fd = open("multinewlines.txt", O_RDONLY);
 // 	fd = open("README.md", O_RDONLY);
 // 	if (fd == -1)
 // 		return (-1);
