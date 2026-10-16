@@ -77,32 +77,32 @@ void	*ft_memcpy(char *dest, char *src, size_t n)
 	return (dest);
 }
 
-char	*read_next_line(int fd, char (*buff)[BUFFER_SIZE + 1])
+char	*read_next_line(int fd, char *remainder)
 {
-	int			bytes;
-	char		*new_line;
-	char		*temp;
+	char	buff[BUFFER_SIZE + 1];
+	int		bytes;
+	char	*new_line;
+	char	*temp;
 
-	new_line = NULL;
-	while (!contains_new_line(*buff))
+	new_line = NULL;	
+	if (fd < 0)
+		return (NULL);
+	if (ft_strlen(remainder) > 0)
+		new_line = ft_dupcat("", remainder);
+	while (!contains_new_line(new_line))
 	{		
-		temp = new_line;
-		new_line = ft_dupcat(new_line, *buff);
-		if (!new_line)
-			return (free(temp), ft_strzero(*buff), NULL);
-		free(temp);
-		bytes = read(fd, *buff, BUFFER_SIZE);
-		if (bytes == 0)
-			return (ft_strzero(*buff), new_line);
+		bytes = read(fd, buff, BUFFER_SIZE);		
 		if (bytes == -1)
-			return (ft_strzero(*buff), free(new_line), NULL);
-		*buff[bytes] = '\0';
-		// temp = new_line;
-		// new_line = ft_dupcat(new_line, *buff);
-		// if (!new_line)
-		// 	return (free(temp), ft_strzero(*buff), NULL);
-		// free(temp);
-	}
+			return (free(new_line), NULL);
+		if (bytes == 0)
+			return (new_line);
+		buff[bytes] = '\0';
+		temp = new_line;
+		new_line = ft_dupcat(new_line, buff);
+		free(temp);
+		if (!new_line)
+			return (NULL);
+	}		
 	return (new_line);
 }
 
@@ -112,39 +112,35 @@ char	*get_next_line(int fd)
 	char		*new_line;
 	int			i;
 
-	new_line = read_next_line(fd, &buff);
+	new_line = read_next_line(fd, buff);
 	if (!new_line)
 		return (NULL);
 	i = 0;
 	while (new_line[i] && new_line[i] != '\n')
 		i++;
-	i++;
-	// printf("BUFF: %s\n", buff);
-	ft_strzero(buff);
-	if (new_line + i + 1)
-		ft_memcpy(buff, new_line + i + 1, ft_strlen(new_line + i + 1) + 1);
-	new_line[i] = '\0';
+	if (*(new_line + i) == '\n')
+	{
+		i++;
+		ft_strzero(buff);
+		ft_memcpy(buff, new_line + i, ft_strlen(new_line + i) + 1);
+		*(new_line + i) = '\0';
+	}
 	return (new_line);
 }
 
-int		main(void)
-{
-	int		fd;
-	char	*line;
-
-	// fd = open("multinewlines.txt", O_RDONLY);
-	fd = open("README.md", O_RDONLY);
-	if (fd == -1)
-		return (-1);
-	// while ((line = get_next_line(fd)))
-	// {
-	// 	printf("~~%s\n", line);
-	// 	free(line);	
-	// }
-	line = get_next_line(fd);
-	printf("~~%s\n", line);	
-	line = get_next_line(fd);
-	printf("~~%s\n", line);
-	free(line);
-	return (close(fd));
-}
+// int		main(void)
+// {
+// 	int		fd;
+// 	char	*line;
+//
+// 	// fd = open("multinewlines.txt", O_RDONLY);
+// 	fd = open("README.md", O_RDONLY);
+// 	if (fd == -1)
+// 		return (-1);
+// 	while ((line = get_next_line(fd)))
+// 	{
+// 		printf("~~%s", line);
+// 		free(line);	
+// 	}
+// 	return (close(fd));
+// }
