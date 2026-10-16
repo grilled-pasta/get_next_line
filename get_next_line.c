@@ -14,72 +14,8 @@
 #include <stdio.h>
 #include <stddef.h>
 
-int		contains_new_line(char *s)
+char	*read_next_line(int fd, char *buff)
 {
-	while (s && *s)
-	{
-		if (*s == '\n')
-			return (1);
-		s++;
-	}
-	return (0);
-}
-
-int		ft_strlen(const char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s && s[i])
-		i++;
-	return (i);
-}
-
-char	*ft_dupcat(char *s1, char *s2)
-{
-	char	*res;
-	char	*str;
-
-	res = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!res)
-		return (NULL);
-	str = res;
-	while (s1 && *s1)
-		*res++ = *s1++;
-	while (s2 && *s2)
-		*res++ = *s2++;
-	*res = '\0';
-	return (str);
-}
-
-void	ft_strzero(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		((unsigned char *) s)[i] = '\0';
-		i++;
-	}
-}
-
-void	*ft_memcpy(char *dest, char *src, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < n)
-	{
-		((unsigned char *) dest)[i] = ((unsigned char *) src)[i];
-		i++;
-	}
-	return (dest);
-}
-
-char	*read_next_line(int fd, char *remainder)
-{
-	char	buff[BUFFER_SIZE + 1];
 	int		bytes;
 	char	*new_line;
 	char	*temp;
@@ -87,12 +23,15 @@ char	*read_next_line(int fd, char *remainder)
 	new_line = NULL;	
 	if (fd < 0)
 		return (NULL);
-	if (ft_strlen(remainder) > 0)
-		new_line = ft_dupcat("", remainder);
+	if (ft_strlen(buff) > 0)
+	{
+		new_line = ft_dupcat("", buff);
+		ft_strzero(buff);
+	}
 	while (!contains_new_line(new_line))
 	{		
-		bytes = read(fd, buff, BUFFER_SIZE);		
-		if (bytes == -1)
+		bytes = read(fd, buff, BUFFER_SIZE);	
+		if (bytes < 0)
 			return (free(new_line), NULL);
 		if (bytes == 0)
 			return (new_line);
@@ -102,7 +41,7 @@ char	*read_next_line(int fd, char *remainder)
 		free(temp);
 		if (!new_line)
 			return (NULL);
-	}		
+	}
 	return (new_line);
 }
 
@@ -118,12 +57,12 @@ char	*get_next_line(int fd)
 	i = 0;
 	while (new_line[i] && new_line[i] != '\n')
 		i++;
-	if (*(new_line + i) == '\n')
+	if (new_line[i] == '\n')
 	{
 		i++;
 		ft_strzero(buff);
 		ft_memcpy(buff, new_line + i, ft_strlen(new_line + i) + 1);
-		*(new_line + i) = '\0';
+		new_line[i] = '\0';
 	}
 	return (new_line);
 }
@@ -139,7 +78,7 @@ char	*get_next_line(int fd)
 // 		return (-1);
 // 	while ((line = get_next_line(fd)))
 // 	{
-// 		printf("~~%s", line);
+// 		printf("~~%s~~", line);
 // 		free(line);	
 // 	}
 // 	return (close(fd));

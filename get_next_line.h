@@ -21,12 +21,11 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-// typedef	struct	fd_str
-// {
-// 	int		fd;
-// 	char	*str;
-// }			t_fd_str;
-
 char	*get_next_line(int fd);
+int		contains_new_line(char *s);
+int		ft_strlen(const char *s);
+char	*ft_dupcat(char *s1, char *s2);
+void	ft_strzero(char *s);
+void	*ft_memcpy(char *dest, char *src, size_t n);
 
 #endif 
