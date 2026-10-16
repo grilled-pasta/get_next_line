@@ -14,39 +14,32 @@
 #include <stdio.h>
 #include <stddef.h>
 
-void	free_mem(char *s)
-{
-	if (s)
-		free(s);
-}
-
 char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
 	char	*new_line;
 	char	*temp;
 
-	new_line = NULL;	
-	if (fd < 0)
-		return (NULL);
+	new_line = NULL;
 	if (ft_strlen(buff) > 0)
 	{
 		new_line = ft_dupcat(NULL, buff);
-		if (!new_line)
-			return (ft_strzero(buff), NULL);
 		ft_strzero(buff);
+		if (!new_line)
+			return (NULL);
 	}
 	while (!contains_new_line(new_line))
-	{		
-		bytes = read(fd, buff, BUFFER_SIZE);	
+	{
+		bytes = read(fd, buff, BUFFER_SIZE);
 		if (bytes < 0)
-			return (ft_strzero(buff), free_mem(new_line), NULL);
+			return (ft_strzero(buff), free(new_line), NULL);
 		if (bytes == 0)
 			return (ft_strzero(buff), new_line);
 		buff[bytes] = '\0';
 		temp = new_line;
 		new_line = ft_dupcat(new_line, buff);
-		free_mem(temp);
+		free(temp);
+		ft_strzero(buff);
 		if (!new_line)
 			return (NULL);
 	}
@@ -58,7 +51,10 @@ char	*get_next_line(int fd)
 	static char	buff[BUFFER_SIZE + 1];
 	char		*new_line;
 	int			i;
+	char		*temp;
 
+	if (fd < 0)
+		return (NULL);
 	new_line = read_next_line(fd, buff);
 	if (!new_line)
 		return (NULL);
@@ -71,6 +67,9 @@ char	*get_next_line(int fd)
 		ft_strzero(buff);
 		ft_memcpy(buff, new_line + i, ft_strlen(new_line + i) + 1);
 		new_line[i] = '\0';
+		temp = new_line;
+		new_line = ft_dupcat(new_line, NULL);
+		free(temp);
 	}
 	return (new_line);
 }
