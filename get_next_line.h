@@ -17,9 +17,7 @@
 #  define BUFFER_SIZE 1 
 # endif
 
-# include <fcntl.h>
 # include <unistd.h>
-# include <stddef.h>
 # include <stdlib.h>
 
 char	*get_next_line(int fd);

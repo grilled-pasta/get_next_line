@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 /*
  * This function returns a string that contains at least one new line, or the 
@@ -19,7 +19,7 @@
  * Returns NULL if memory allocation fails, or the was an error while reading
  * from the file.
  */
-char	*read_next_line(int fd, char *buff)
+static char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
 	char	*new_line;
@@ -51,7 +51,7 @@ char	*read_next_line(int fd, char *buff)
 /*
  * This function handles reading a file line by line. It returns a string
  * containing the next new line in the file. Repeated calls return the next new
- * line encountered in the file.
+ * line encountered in the file. It handles reading from multiple files.
  * Returns NULL if the file descriptor is invalid, if memory allocation fails,
  * or if EOF is reached and there is nothing more to read.
  */
@@ -61,7 +61,7 @@ char	*get_next_line(int fd)
 	char		*new_line;
 	int			i;
 
-	if (fd < 0)
+	if (fd < 0 || fd > 1023 || BUFFER_SIZE < 1)
 		return (NULL);
 	new_line = read_next_line(fd, buff[fd]);
 	if (!new_line)
@@ -79,3 +79,33 @@ char	*get_next_line(int fd)
 	}
 	return (new_line);
 }
+
+// #include <stdio.h>
+// #include <fcntl.h>
+//
+// int	main(void)
+// {
+// 	int		fd, fd2;
+// 	char	*line;
+//
+// 	fd = open("README.md", O_RDONLY);
+// 	fd2 = open("tests/files/multiple_lines.txt", O_RDONLY);
+//
+// 	line = get_next_line(fd);
+// 	printf("~~%s", line);
+// 	free(line);
+//
+// 	line = get_next_line(fd2);
+// 	printf("~~%s", line);
+// 	free(line);	
+//
+// 	line = get_next_line(fd);
+// 	printf("~~%s", line);
+// 	free(line);
+//
+// 	line = get_next_line(fd2);
+// 	printf("~~%s", line);
+// 	free(line);	
+//
+// 	return (close(fd) && close(fd2));
+// }

@@ -19,7 +19,7 @@
  * Returns NULL if memory allocation fails, or the was an error while reading
  * from the file.
  */
-char	*read_next_line(int fd, char *buff)
+static char	*read_next_line(int fd, char *buff)
 {
 	int		bytes;
 	char	*new_line;
@@ -61,7 +61,7 @@ char	*get_next_line(int fd)
 	char		*new_line;
 	int			i;
 
-	if (fd < 0)
+	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
 	new_line = read_next_line(fd, buff);
 	if (!new_line)
@@ -81,6 +81,7 @@ char	*get_next_line(int fd)
 }
 
 // #include <stdio.h>
+// #include <fcntl.h>
 //
 // int		main(void)
 // {
