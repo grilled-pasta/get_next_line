@@ -16,7 +16,7 @@
  * This function returns a string that contains at least one new line, or the 
  * contents before reaching EOF. It handles processing the remainder of a
  * previous file read. 
- * Returns NULL if memory allocation fails, or the was an error while reading
+ * Returns NULL if memory allocation fails, or there was an error while reading
  * from the file.
  */
 static char	*read_next_line(int fd, char *buff)
